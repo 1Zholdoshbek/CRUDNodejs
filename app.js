@@ -1,8 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const User = require('./models/User');
+const sequelize = require('./config/database');  // Импортируем объект sequelize
 require('dotenv').config();
 
 const productRoutes = require('./routes/productRoutes');
+const authRoutes = require('./routes/auth/authRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const swaggerSetup = require('./swagger');
 
@@ -18,6 +21,7 @@ swaggerSetup(app);
 
 // Routes
 app.use('/api', productRoutes);
+app.use('/api/auth',authRoutes);
 
 // Error handling
 app.use(errorHandler);
@@ -30,3 +34,12 @@ app.use((req, res) => {
 app.listen(port, () => {
     console.log(`Сервер запущен на порту ${port}`);
 });
+
+
+sequelize.sync()
+    .then(() => {
+        console.log('Таблицы синхронизированы');
+    })
+    .catch((error) => {
+        console.error('Ошибка синхронизации с базой данных:', error);
+    });
